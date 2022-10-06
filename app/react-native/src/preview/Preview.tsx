@@ -11,6 +11,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import OnDeviceUI from './components/OnDeviceUI';
 import { theme } from './components/Shared/theme';
 import { loadCsf } from './loadCsf';
+import { unsupportedStoryBookUIParams } from './unsupportedParams';
 
 const STORAGE_KEY = 'lastOpenedStory';
 
@@ -88,7 +89,16 @@ export default class Preview {
     return this._clientApi;
   };
 
+  getUnsupportedParams = (params: Partial<Params> = {}): string[] => {
+    return Object.keys(params).filter((key: string) => unsupportedStoryBookUIParams[key]);
+  };
+
   getStorybookUI = (params: Partial<Params> = {}) => {
+    const unsupportedParams = this.getUnsupportedParams(params);
+    if (unsupportedParams.length > 0) {
+      throw new Error('Currently unsupported params: ' + unsupportedParams.join(', '));
+    }
+
     const { initialSelection, shouldPersistSelection = true } = params;
     this._setInitialStory(initialSelection, shouldPersistSelection);
 
